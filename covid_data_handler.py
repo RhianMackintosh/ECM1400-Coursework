@@ -45,8 +45,8 @@ def process_covid_csv_data(covid_csv_data):
     """
     # returns three variables: no. cases in last 7 days, current no. of hospital cases, cumulative no. deaths
     week = []
-    weekData = []
-    casesWeek = 0
+    week_data = []
+    cases_week = 0
 
     today = date(2021, 10, 26)
 
@@ -56,15 +56,15 @@ def process_covid_csv_data(covid_csv_data):
     for i in covid_csv_data:
         for j in week:
             if i[3] == j:
-                weekData.append(i)
+                week_data.append(i)
                 cases = i[6]
                 cases = cases.strip('\n')
-                casesWeek += int(cases)
+                cases_week += int(cases)
 
-    currentDeaths = int(covid_csv_data[14][4])
-    currentHospital = int(covid_csv_data[1][5])
+    current_deaths = int(covid_csv_data[14][4])
+    current_hospital = int(covid_csv_data[1][5])
 
-    return casesWeek, currentHospital, currentDeaths
+    return cases_week, current_hospital, current_deaths
 
 
 def covid_API_request(location=config_data['default_location'], location_type=config_data['default_location_type']):
@@ -78,11 +78,11 @@ def covid_API_request(location=config_data['default_location'], location_type=co
             natWeekAva: the national weekly avarage cases
     """
     # returns up to data covid data as a dictionary
-    NationalWeek = []
+    national_week = []
     deaths = None
-    hospitalCases = None
+    hospital_cases = None
 
-    areaFilter = ['areaType=%s' % location_type, 'areaName=%s' % location]
+    area_filter = ['areaType=%s' % location_type, 'areaName=%s' % location]
     cases_and_deaths = {
         "areaCode": "areaCode",
         "areaName": "areaName",
@@ -93,13 +93,12 @@ def covid_API_request(location=config_data['default_location'], location_type=co
     }
     logging.info("filter and structure set up")
 
-    api = Cov19API(filters=areaFilter, structure=cases_and_deaths)
+    api = Cov19API(filters=area_filter, structure=cases_and_deaths)
     data = api.get_json()
     logging.info("covid api data request made")
 
     if location_type == 'Nation':
         for i in data["data"]:
-            print(i)
             if not i["cumDailyNsoDeathsByDeathDate"]:
                 logging.debug("data entry is empty, moving onto the next entry")
                 pass
@@ -113,7 +112,7 @@ def covid_API_request(location=config_data['default_location'], location_type=co
                 logging.debug("data entry is empty, moving onto the next entry")
                 pass
             else:
-                hospitalCases = i["hospitalCases"]
+                hospital_cases = i["hospitalCases"]
                 logging.debug("data entry not empty for the no. hospital cases, using the data")
 
                 break
@@ -130,14 +129,14 @@ def covid_API_request(location=config_data['default_location'], location_type=co
             logging.debug("week has been exceeded, breaking loop")
             break
         else:
-            NationalWeek.append(i["newCasesBySpecimenDate"])
+            national_week.append(i["newCasesBySpecimenDate"])
         j += 1
 
-    natWeekAva = 0
-    for i in NationalWeek:
-        natWeekAva += i
+    national_week_average = 0
+    for i in national_week:
+        national_week_average += i
 
-    return deaths, hospitalCases, natWeekAva
+    return deaths, hospital_cases, national_week_average
 
 
 def schedule_covid_updates(update_interval, update_name):
@@ -146,7 +145,6 @@ def schedule_covid_updates(update_interval, update_name):
         print("update news/covid numbers")
 
     e1 = s.enter(update_interval, 1, job, (update_name,))
-    e2 = s.enter(5, 1, job, (update_name,))
     s.run(blocking=False)
     # use the sched module to update the covid data at given time intervals
     return

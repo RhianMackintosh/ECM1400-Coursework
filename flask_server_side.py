@@ -42,12 +42,12 @@ def dashboard():
     :return: render the html page
     """
     logging.info("client accessed either route")
-    deaths, hospitalCases, natWeekAva = covid_API_request('England', 'Nation')
-    locAva = covid_API_request()[2]
+    deaths, hospital_cases, nat_week_ava = covid_API_request('England', 'Nation')
+    local_average = covid_API_request()[2]
     logging.info("covid data API requests made")
-    updateSchedules = []
+    update_schedules = []
 
-    hospitalCases = "National hospital cases:", str(hospitalCases)
+    hospital_cases = "National hospital cases:", str(hospital_cases)
     deaths = "National death total: ", str(deaths)
 
     # load the page initially
@@ -72,8 +72,8 @@ def dashboard():
             # schedule_add_news
 
         return render_template('index.html', title='Smart Covid Dashboard', news_articles=news, deaths_total=deaths,
-                               hospital_cases=hospitalCases, national_7day_infections=natWeekAva,
-                               local_7day_infections=locAva, updates=updateSchedules, image='covidPic.jpg',
+                               hospital_cases=hospital_cases, national_7day_infections=nat_week_ava,
+                               local_7day_infections=local_average, updates=update_schedules, image='covidPic.jpg',
                                notif=removing_news())
 
 

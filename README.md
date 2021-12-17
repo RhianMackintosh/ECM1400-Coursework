@@ -19,6 +19,8 @@ Other modules used in the program:
 * datetime
 * sched
 * time
+* logging
+* json
 
 ## Intstallation
 
